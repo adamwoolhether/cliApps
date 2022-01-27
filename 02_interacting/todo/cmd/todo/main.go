@@ -20,15 +20,16 @@ func main() {
 	list := flag.Bool("list", false, "List all tasks")
 	complete := flag.Int("complete", 0, "Item to be completed")
 	del := flag.Int("del", 0, "Delete a task from the todo list")
-	flag.Parse()
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(),
-			"%s tool. Developed for study.\n", os.Args[0])
+			"%s tool.\nSubmit todo items at command line with the -add flag.\n"+
+				"Press Enter immediately after -add to submit multiple commands.\n", os.Args[0])
 		fmt.Fprintf(flag.CommandLine.Output(), "Copyright 2022\n")
 		fmt.Fprintln(flag.CommandLine.Output(), "Usage information:")
 		flag.PrintDefaults()
 	}
+	flag.Parse()
 
 	// Check for user-defined ENV VAR to specify custom file name.
 	if os.Getenv("TODO_FILENAME") != "" {
@@ -37,7 +38,7 @@ func main() {
 
 	l := &todo.List{}
 
-	// Use the Get method to read todo items from file.
+	// Use the Get method to read to do items from file.
 	if err := l.Get(todoFileName); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -61,13 +62,11 @@ func main() {
 		}
 	case *add:
 		// Any args (excluding flags) will be used as the new task.
-		t, err := getTesk(os.Stdin, flag.Args()...)
+		err := getTesk(os.Stdin, l, flag.Args()...)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		l.Add(t)
-
 		// Save the new list
 		if err = l.Save(todoFileName); err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -89,21 +88,32 @@ func main() {
 	}
 }
 
-// getTask decides where to get the description for a new tak
+// getTask decides where to get the description for a new task
 // from: arguments of STDIN.
-func getTesk(r io.Reader, args ...string) (string, error) {
+func getTesk(r io.Reader, l *todo.List, args ...string) error {
 	if len(args) > 0 {
-		return strings.Join(args, " "), nil
+		l.Add(strings.Join(args, " "))
+		return nil
 	}
 
 	s := bufio.NewScanner(r)
-	s.Scan()
-	if err := s.Err(); err != nil {
-		return "", err
-	}
-	if len(s.Text()) == 0 {
-		return "", fmt.Errorf("task cannot be blank")
+	counter := 0
+
+	for s.Scan() {
+		if err := s.Err(); err != nil {
+			return err
+		}
+
+		switch {
+		case counter == 0 && len(s.Text()) == 0:
+			return fmt.Errorf("task cannot be blank")
+		case counter > 0 && len(s.Text()) == 0:
+			return nil
+		}
+
+		l.Add(s.Text())
+		counter++
 	}
 
-	return s.Text(), nil
+	return nil
 }

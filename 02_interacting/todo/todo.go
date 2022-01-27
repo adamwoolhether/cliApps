@@ -20,7 +20,7 @@ type item struct {
 // List represents a list of todo items.
 type List []item
 
-// String implementes the fmt.Stringer interface to print out a formatted list.
+// String implements the fmt.Stringer interface to print out a formatted list.
 func (l *List) String() string {
 	formatted := ""
 
@@ -30,7 +30,6 @@ func (l *List) String() string {
 			prefix = "X "
 		}
 
-		// Adjust item number k to print number starting from 1, not 0.
 		formatted += fmt.Sprintf("%s%d: %s\n", prefix, k+1, t.Task)
 	}
 
