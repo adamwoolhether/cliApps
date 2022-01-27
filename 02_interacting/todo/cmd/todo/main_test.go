@@ -52,8 +52,7 @@ func TestTodoCLI(t *testing.T) {
 
 	t.Run("AddNewTaskFromArguments", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-add", task)
-
-		if err := cmd.Run(); err != nil {
+		if err = cmd.Run(); err != nil {
 			t.Fatal(err)
 		}
 	})
@@ -88,7 +87,7 @@ func TestTodoCLI(t *testing.T) {
 
 	t.Run("CompleteTasks", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-complete", "1")
-		if err := cmd.Run(); err != nil {
+		if err = cmd.Run(); err != nil {
 			t.Fatal(err)
 		}
 		cmd = exec.Command(cmdPath, "-list")
@@ -103,4 +102,16 @@ func TestTodoCLI(t *testing.T) {
 		}
 	})
 
+	t.Run("DeleteTasks", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-del", "1")
+		err = cmd.Run()
+		if err != nil {
+			t.Fatal(err)
+		}
+		//
+		// expected := fmt.Sprintf("  2: %s\n", task2)
+		// if expected != string(out) {
+		// 	t.Errorf("exp %q, got %q\n", expected, string(out))
+		// }
+	})
 }
