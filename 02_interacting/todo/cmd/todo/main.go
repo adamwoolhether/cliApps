@@ -20,6 +20,7 @@ func main() {
 	list := flag.Bool("list", false, "List all tasks")
 	complete := flag.Int("complete", 0, "Item to be completed")
 	del := flag.Int("del", 0, "Delete a task from the todo list")
+	// verbose := flag.Bool("v", false, "Verbose output for list.")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(),
@@ -47,8 +48,13 @@ func main() {
 	// Decide what to do based on number of args provided.
 	switch {
 	case *list:
-		// List current to do items
 		fmt.Print(l)
+	// case *verbose:
+	// 	fmt.Printf("%%s %s\n", l)
+	// 	fmt.Printf("%%q %q\n", l)
+	// 	fmt.Printf("%%v %v\n", l)
+	// 	fmt.Printf("%%+v %+v\n", l)
+	// 	fmt.Printf("%%+#v %+#v\n", l)
 	case *complete > 0:
 		// Complete the given item
 		if err := l.Complete(*complete); err != nil {

@@ -36,6 +36,44 @@ func (l *List) String() string {
 	return formatted
 }
 
+/*func (l *List) Format(state fmt.State, verb rune) {
+	typ := reflect.TypeOf(item{})
+	itemFields := make([]string, typ.NumField())
+	for i := 0; i < typ.NumField(); i++ {
+		itemFields[i] = typ.Field(i).Name
+	}
+
+	switch verb {
+	case 's', 'q':
+		val := l.String()
+		if verb == 'q' {
+			val = fmt.Sprintf("%q", val)
+		}
+		fmt.Fprint(state, val)
+	case 'v':
+		if state.Flag('#') {
+			fmt.Fprint(state, "%T", l)
+		}
+		fmt.Fprint(state, "{")
+		// val := reflect.ValueOf(*l)
+		for i, name := range itemFields {
+			if state.Flag('#') || state.Flag('+') {
+				fmt.Fprintf(state, "%s:", name)
+			}
+			// fld := val.FieldByName(name)
+			// if name == "Task" && fld.Len() > 0 {
+			// 	fmt.Fprint(state, keyMask)
+			// } else {
+			// fmt.Fprint(state, fld)
+			// }
+			if i < len(itemFields)-1 {
+				fmt.Fprint(state, " ")
+			}
+		}
+		fmt.Fprint(state, "}")
+	}
+}*/
+
 // Add creates a new todo item and appends it to the list.
 func (l *List) Add(task string) {
 	t := item{
