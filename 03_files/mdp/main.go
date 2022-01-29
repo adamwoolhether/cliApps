@@ -105,7 +105,7 @@ func run(filename, tFname string, out io.Writer, skipPreview, stdin bool) (err e
 	return preview(outName)
 }
 
-func parseContent(input []byte, srcFile, tFname string) ([]byte, error) {
+func parseContent(input []byte, srcFileName, tFname string) ([]byte, error) {
 	// Parse the markdown file through blackfriday and
 	// bluemonday to generate a valid and safe HTML file
 	output := blackfriday.Run(input)
@@ -132,7 +132,7 @@ func parseContent(input []byte, srcFile, tFname string) ([]byte, error) {
 	// Instantiate the content type, adding the title and body.
 	c := content{
 		Title: "Markdown Preview Tool",
-		File:  filepath.Base(srcFile),
+		File:  filepath.Base(srcFileName),
 		Body:  template.HTML(body),
 	}
 

@@ -61,3 +61,18 @@ func TestRun(t *testing.T) {
 
 	os.Remove(resultFile)
 }
+
+const customTemplate = "template-filename.html.tmpl"
+
+func TestParseContent_CustomTemplate(t *testing.T) {
+	input, err := os.ReadFile(inputFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Should probably make this test more robust, rather than just checking if the function works.
+	_, err = parseContent(input, "", customTemplate)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
