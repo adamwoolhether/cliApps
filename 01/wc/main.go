@@ -10,23 +10,27 @@ import (
 
 func main() {
 	// Define a boolean flag -l to count lines instead of words.
-	lines := flag.Bool("l", false, "Count lines")
-	bytes := flag.Bool("b", false, "Count bytes")
-	file := flag.String("f", "", "Read from file instead of stdin")
+	lineCount := flag.Bool("l", false, "Count lines")
+	byteCount := flag.Bool("b", false, "Count bytes")
+	file := flag.Bool("f", false, "Read from file instead of stdin")
 	// Parse the given flags.
 	flag.Parse()
 
-	if *file != "" {
-		data, err := os.Open(*file)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
+	if *file {
+		num := 0
+		for i := range flag.Args() {
+			fileData, err := os.Open(flag.Arg(i))
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			num += count(fileData, *lineCount, *byteCount)
 		}
-		os.Stdin = data
-		defer data.Close()
+		fmt.Println(num)
+		return
 	}
 
-	fmt.Println(count(os.Stdin, *lines, *bytes))
+	fmt.Println(count(os.Stdin, *lineCount, *byteCount))
 }
 
 // count returns the number of words given by io.Reader.
