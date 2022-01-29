@@ -12,8 +12,19 @@ func main() {
 	// Define a boolean flag -l to count lines instead of words.
 	lines := flag.Bool("l", false, "Count lines")
 	bytes := flag.Bool("b", false, "Count bytes")
+	file := flag.String("f", "", "Read from file instead of stdin")
 	// Parse the given flags.
 	flag.Parse()
+
+	if *file != "" {
+		data, err := os.Open(*file)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		os.Stdin = data
+		defer data.Close()
+	}
 
 	fmt.Println(count(os.Stdin, *lines, *bytes))
 }
