@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -30,6 +31,7 @@ const defaultTemplate = `<!DOCTYPE html>
 // content represents the HTML content to add into the template.
 type content struct {
 	Title string
+	File  string
 	Body  template.HTML
 }
 
@@ -59,7 +61,7 @@ func run(filename, tFname string, out io.Writer, skipPreview bool) error {
 		return err
 	}
 
-	htmlData, err := parseContent(input, tFname)
+	htmlData, err := parseContent(input, filename, tFname)
 	if err != nil {
 		return err
 	}
@@ -89,7 +91,7 @@ func run(filename, tFname string, out io.Writer, skipPreview bool) error {
 	return preview(outName)
 }
 
-func parseContent(input []byte, tFname string) ([]byte, error) {
+func parseContent(input []byte, srcFile, tFname string) ([]byte, error) {
 	// Parse the markdown file through blackfriday and
 	// bluemonday to generate a valid and safe HTML file
 	output := blackfriday.Run(input)
@@ -112,6 +114,7 @@ func parseContent(input []byte, tFname string) ([]byte, error) {
 	// Instantiate the content type, adding the title and body.
 	c := content{
 		Title: "Markdown Preview Tool",
+		File:  filepath.Base(srcFile),
 		Body:  template.HTML(body),
 	}
 
