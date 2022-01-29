@@ -40,25 +40,39 @@ func main() {
 	filename := flag.String("file", "", "Markdown file to preview")
 	skipPreview := flag.Bool("s", false, "Skip auto-preview")
 	tFname := flag.String("t", "", "Alternate template name")
+	stdin := flag.Bool("stdin", false, "Read from stdin")
 	flag.Parse()
 
-	// If no file input provided, show usage.
-	if *filename == "" {
-		flag.Usage()
-		os.Exit(1)
+	if !*stdin {
+		// If no file input provided, show usage.
+		if *filename == "" {
+			flag.Usage()
+			os.Exit(1)
+		}
 	}
-	if err := run(*filename, *tFname, os.Stdout, *skipPreview); err != nil {
+
+	if err := run(*filename, *tFname, os.Stdout, *skipPreview, *stdin); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
 // run coordinates te execution of the program's functions.
-func run(filename, tFname string, out io.Writer, skipPreview bool) error {
-	// Read data from the input file and check for errors
-	input, err := os.ReadFile(filename)
-	if err != nil {
-		return err
+func run(filename, tFname string, out io.Writer, skipPreview, stdin bool) (err error) {
+	var input []byte
+
+	if !stdin {
+		// Read data from the input file and check for errors
+		input, err = os.ReadFile(filename)
+		if err != nil {
+			return err
+		}
+	} else {
+		input, err = io.ReadAll(os.Stdin)
+		if err != nil {
+			return err
+		}
+		filename = "stdin"
 	}
 
 	htmlData, err := parseContent(input, filename, tFname)
