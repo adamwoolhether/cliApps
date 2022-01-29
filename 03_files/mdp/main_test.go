@@ -18,7 +18,7 @@ func TestParseContent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	result, err := parseContent(input, "")
+	result, err := parseContent(input, "", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func TestParseContent(t *testing.T) {
 func TestRun(t *testing.T) {
 	var mockStdout bytes.Buffer
 
-	if err := run(inputFile, "", &mockStdout, true); err != nil {
+	if err := run(inputFile, "", &mockStdout, true, false); err != nil {
 		t.Fatal(err)
 	}
 
@@ -60,4 +60,19 @@ func TestRun(t *testing.T) {
 	}
 
 	os.Remove(resultFile)
+}
+
+const customTemplate = "template-filename.html.tmpl"
+
+func TestParseContent_CustomTemplate(t *testing.T) {
+	input, err := os.ReadFile(inputFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Should probably make this test more robust, rather than just checking if the function works.
+	_, err = parseContent(input, "", customTemplate)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

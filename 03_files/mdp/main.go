@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -30,6 +31,7 @@ const defaultTemplate = `<!DOCTYPE html>
 // content represents the HTML content to add into the template.
 type content struct {
 	Title string
+	File  string
 	Body  template.HTML
 }
 
@@ -38,28 +40,42 @@ func main() {
 	filename := flag.String("file", "", "Markdown file to preview")
 	skipPreview := flag.Bool("s", false, "Skip auto-preview")
 	tFname := flag.String("t", "", "Alternate template name")
+	stdin := flag.Bool("stdin", false, "Read from stdin")
 	flag.Parse()
 
-	// If no file input provided, show usage.
-	if *filename == "" {
-		flag.Usage()
-		os.Exit(1)
+	if !*stdin {
+		// If no file input provided, show usage.
+		if *filename == "" {
+			flag.Usage()
+			os.Exit(1)
+		}
 	}
-	if err := run(*filename, *tFname, os.Stdout, *skipPreview); err != nil {
+
+	if err := run(*filename, *tFname, os.Stdout, *skipPreview, *stdin); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
 // run coordinates te execution of the program's functions.
-func run(filename, tFname string, out io.Writer, skipPreview bool) error {
-	// Read data from the input file and check for errors
-	input, err := os.ReadFile(filename)
-	if err != nil {
-		return err
+func run(filename, tFname string, out io.Writer, skipPreview, stdin bool) (err error) {
+	var input []byte
+
+	if !stdin {
+		// Read data from the input file and check for errors
+		input, err = os.ReadFile(filename)
+		if err != nil {
+			return err
+		}
+	} else {
+		input, err = io.ReadAll(os.Stdin)
+		if err != nil {
+			return err
+		}
+		filename = "stdin"
 	}
 
-	htmlData, err := parseContent(input, tFname)
+	htmlData, err := parseContent(input, filename, tFname)
 	if err != nil {
 		return err
 	}
@@ -89,7 +105,7 @@ func run(filename, tFname string, out io.Writer, skipPreview bool) error {
 	return preview(outName)
 }
 
-func parseContent(input []byte, tFname string) ([]byte, error) {
+func parseContent(input []byte, srcFileName, tFname string) ([]byte, error) {
 	// Parse the markdown file through blackfriday and
 	// bluemonday to generate a valid and safe HTML file
 	output := blackfriday.Run(input)
@@ -102,6 +118,10 @@ func parseContent(input []byte, tFname string) ([]byte, error) {
 	}
 
 	// If user provides an alternate template, replace default.
+	// Use can also use env var to set filename.
+	if f := os.Getenv("TEMPLATE_FILENAME"); f != "" {
+		tFname = os.Getenv("TEMPLATE_FILENAME")
+	}
 	if tFname != "" {
 		t, err = template.ParseFiles(tFname)
 		if err != nil {
@@ -112,6 +132,7 @@ func parseContent(input []byte, tFname string) ([]byte, error) {
 	// Instantiate the content type, adding the title and body.
 	c := content{
 		Title: "Markdown Preview Tool",
+		File:  filepath.Base(srcFileName),
 		Body:  template.HTML(body),
 	}
 
