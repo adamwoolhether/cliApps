@@ -104,6 +104,10 @@ func parseContent(input []byte, srcFile, tFname string) ([]byte, error) {
 	}
 
 	// If user provides an alternate template, replace default.
+	// Use can also use env var to set filename.
+	if f := os.Getenv("TEMPLATE_FILENAME"); f != "" {
+		tFname = os.Getenv("TEMPLATE_FILENAME")
+	}
 	if tFname != "" {
 		t, err = template.ParseFiles(tFname)
 		if err != nil {
