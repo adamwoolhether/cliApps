@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"runtime"
+	"time"
 
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
@@ -29,6 +32,7 @@ const (
 func main() {
 	// Parse flags
 	filename := flag.String("file", "", "Markdown file to preview")
+	skipPreview := flag.Bool("s", false, "Skip auto-preview")
 	flag.Parse()
 
 	// If no file input provided, show usage.
@@ -36,14 +40,14 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	if err := run(*filename, os.Stdout); err != nil {
+	if err := run(*filename, os.Stdout, *skipPreview); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
 // run coordinates te execution of the program's functions.
-func run(filename string, out io.Writer) error {
+func run(filename string, out io.Writer, skipPreview bool) error {
 	// Read data from the input file and check for errors
 	input, err := os.ReadFile(filename)
 	if err != nil {
@@ -63,7 +67,17 @@ func run(filename string, out io.Writer) error {
 
 	fmt.Fprintln(out, outName)
 
-	return saveHTML(outName, htmlData)
+	if err = saveHTML(outName, htmlData); err != nil {
+		return err
+	}
+
+	if skipPreview {
+		return nil
+	}
+
+	defer os.Remove(outName)
+
+	return preview(outName)
 }
 
 func parseContent(input []byte) []byte {
@@ -86,4 +100,39 @@ func parseContent(input []byte) []byte {
 func saveHTML(outFname string, data []byte) error {
 	// Write the bytes to the file.
 	return os.WriteFile(outFname, data, 0644)
+}
+
+func preview(fname string) error {
+	cName := ""
+	cParams := []string{}
+
+	// Define executable based on OS
+	switch runtime.GOOS {
+	case "linux":
+		cName = "xdg-open"
+	case "windows":
+		cName = "cmd.exe"
+	case "darwin":
+		cName = "open"
+	default:
+		return fmt.Errorf("os not supported")
+	}
+
+	// Append filename to parameters slice
+	cParams = append(cParams, fname)
+
+	// Locate executable in path
+	cPath, err := exec.LookPath(cName)
+	if err != nil {
+		return err
+	}
+
+	// Open the file using default executable
+	exec.Command(cPath, cParams...).Run()
+
+	// Give the browser time to open the file before deleting it.
+	// This is a temporary solution. We should implement handling
+	// and OS signal in the future.
+	time.Sleep(2 * time.Second)
+	return err
 }
