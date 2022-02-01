@@ -12,10 +12,12 @@ import (
 type config struct {
 	ext     string    // extension to filter out
 	size    int64     // min file size
+	age     int       // min file age
+	name    string    // match file names beginnging with
 	list    bool      // list files
 	del     bool      // delete files
-	wLog    io.Writer // log destination writer
 	archive string    // archive directory
+	wLog    io.Writer // log destination writer
 }
 
 func main() {
@@ -28,6 +30,8 @@ func main() {
 	// Filter options
 	ext := flag.String("ext", "", "File extension to filter out")
 	size := flag.Int64("size", 0, "Minimum file size")
+	age := flag.Int("age", 0, "Minimum file age (days)")
+	name := flag.String("name", "", "Match file names with regex-like syntax.")
 	flag.Parse()
 
 	var (
@@ -47,10 +51,12 @@ func main() {
 	c := config{
 		ext:     *ext,
 		size:    *size,
+		age:     *age,
+		name:    *name,
 		list:    *list,
 		del:     *del,
-		wLog:    f,
 		archive: *archive,
+		wLog:    f,
 	}
 
 	if err = run(*root, os.Stdout, c); err != nil {
@@ -68,7 +74,7 @@ func run(root string, out io.Writer, cfg config) error {
 				return err
 			}
 
-			if filterOut(path, cfg.ext, cfg.size, info) {
+			if filterOut(path, cfg.ext, cfg.size, cfg.age, cfg.name, info) {
 				return nil
 			}
 

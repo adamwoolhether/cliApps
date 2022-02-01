@@ -8,11 +8,24 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
-func filterOut(path, ext string, minSize int64, info os.FileInfo) bool {
+func filterOut(path, ext string, minSize int64, minAge int, nameMatch string, info os.FileInfo) bool {
 	if info.IsDir() || info.Size() < minSize {
 		return true
+	}
+
+	if nameMatch != "" {
+		if match, _ := filepath.Match(nameMatch, filepath.Base(path)); !match {
+			return true
+		}
+	}
+
+	if minAge != 0 {
+		if info.ModTime().After(time.Now().Add(-24 * time.Hour * time.Duration(minAge))) {
+			return true
+		}
 	}
 
 	if ext != "" {
