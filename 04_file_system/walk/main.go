@@ -9,11 +9,17 @@ import (
 	"path/filepath"
 )
 
+/*
+Need to add support/option for handling sym links.
+Need to add restore function for archived files.
+	Should read a log file?
+*/
+
 type config struct {
 	ext     string    // extension to filter out
 	size    int64     // min file size
 	age     int       // min file age
-	name    string    // match file names beginnging with
+	name    string    // match file names
 	list    bool      // list files
 	del     bool      // delete files
 	archive string    // archive directory
