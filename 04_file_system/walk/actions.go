@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func filterOut(path, ext string, minSize int64, info os.FileInfo) bool {
@@ -14,7 +15,14 @@ func filterOut(path, ext string, minSize int64, info os.FileInfo) bool {
 		return true
 	}
 
-	if ext != "" && filepath.Ext(path) != ext {
+	if ext != "" {
+		exts := strings.Split(ext, ",")
+		for _, e := range exts {
+			if filepath.Ext(path) == e {
+				return false
+			}
+		}
+		// File doesn't match any specified extensions.
 		return true
 	}
 

@@ -10,7 +10,7 @@ import (
 )
 
 type config struct {
-	ext     string    // extension to fileter out
+	ext     string    // extension to filter out
 	size    int64     // min file size
 	list    bool      // list files
 	del     bool      // delete files
