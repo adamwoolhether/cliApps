@@ -49,8 +49,29 @@ func TestRun(t *testing.T) {
 	}
 }
 
-// gotest -bench . -run ^$
-// gotest -bench . -benchtime=10x -run ^$
+/*
+// To run benchmarks:
+gotest -bench . -run ^$
+gotest -bench . -benchtime=10x -run ^$
+gotest -bench . -benchtime=10x -run ^$ | tee benchresults00.txt
+gotest -bench . -benchtime=10x -run ^$ -benchmem | tee benchresults00m.txt
+
+// For profiling:
+gotest -bench . -benchtime=10x -run ^$ -cpuprofile cpu00.pprof
+go tool pprof cpu00.pprof
+top
+top -cum
+list csv2Float
+web
+
+// Mem profiling:
+gotest -bench . -benchtime=10x -run ^$ -memprofile mem00.pprof
+go tool pprof --alloc_space mem00.pprof
+
+// To compare results, use benchcmp:
+go get -u -v golang.org/x/tools/cmd/benchcmp
+benchcmp benchresults00m.txt benchresults01m.txt
+*/
 func BenchmarkRun(b *testing.B) {
 	filenames, err := filepath.Glob("./testdata/benchmark/*.csv")
 	if err != nil {
