@@ -19,6 +19,8 @@ func TestFilterOut(t *testing.T) {
 		{"FilterExtensionNoMatch", "testdata/dir.log", ".sh", 0, "", true},
 		{"FilterExtensionSizeMatch", "testdata/dir.log", ".log", 10, "", false},
 		{"FilterExtensionSizeNoMatch", "testdata/dir.log", ".log", 20, "", true},
+		{"FilterMultiExtensionMatch", "testdata/dir.log", ".log,.sh", 0, "", false},
+		{"FilterMultiExtensionNoMatch", "testdata/dir.log", ".zip,.exe", 0, "", true},
 		{"FilterNoNameMatch", "testdata/dir.log", "", 0, "", false},
 		{"FilterNameNoMatch", "testdata/dir.log", "", 0, "go*.sh", true},
 	}
