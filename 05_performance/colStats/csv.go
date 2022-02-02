@@ -58,6 +58,7 @@ func csv2Float(r io.Reader, column int) ([]float64, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%w: %s", ErrNotNumber, err)
 		}
+
 		data = append(data, v)
 	}
 

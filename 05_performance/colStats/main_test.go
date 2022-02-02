@@ -71,13 +71,16 @@ go tool pprof --alloc_space mem00.pprof
 // To compare results, use benchcmp:
 go get -u -v golang.org/x/tools/cmd/benchcmp
 benchcmp benchresults00m.txt benchresults01m.txt
+
+// Tracing:
+gotest -bench . -benchtime=10x -run ^$ -trace trace01.out
+go tool trace trace01.out
 */
 func BenchmarkRun(b *testing.B) {
 	filenames, err := filepath.Glob("./testdata/benchmark/*.csv")
 	if err != nil {
 		b.Fatal(err)
 	}
-
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
