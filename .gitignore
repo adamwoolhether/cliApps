@@ -1,2 +1,3 @@
 .idea/*
 *.todo.json
+/05_performance/colStats/testdata/benchmark/
