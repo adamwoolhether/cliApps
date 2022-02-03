@@ -1,0 +1,9 @@
+goos: darwin
+goarch: amd64
+pkg: github.com/adamwoolhether/cliApps/05_performance/colStats
+cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+BenchmarkRun-16       	      10	 130653631 ns/op
+BenchmarkRunMin-16    	      10	 128307083 ns/op
+BenchmarkRunMax-16    	      10	 129313105 ns/op
+PASS
+ok  	github.com/adamwoolhether/cliApps/05_performance/colStats	4.499s
