@@ -25,41 +25,27 @@ func avg(data []float64) float64 {
 }
 
 func min(data []float64) float64 {
-	for _, v := range data {
-		isMin := true
+	m := data[0]
 
-		for _, v2 := range data {
-			if v > v2 {
-				isMin = false
-				break
-			}
-		}
-
-		if isMin {
-			return v
+	for _, v := range data[1:] {
+		if m > v {
+			m = v
 		}
 	}
 
-	return 0.0
+	return m
 }
 
 func max(data []float64) float64 {
-	for _, v := range data {
-		isMax := true
+	m := data[0]
 
-		for _, v2 := range data {
-			if v < v2 {
-				isMax = false
-				break
-			}
-		}
-
-		if isMax {
-			return v
+	for _, v := range data[1:] {
+		if m < v {
+			m = v
 		}
 	}
 
-	return 0.0
+	return m
 }
 
 func csv2Float(r io.Reader, column int) ([]float64, error) {
