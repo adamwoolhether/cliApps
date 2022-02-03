@@ -24,6 +24,44 @@ func avg(data []float64) float64 {
 	return sum(data) / float64(len(data))
 }
 
+func min(data []float64) float64 {
+	for _, v := range data {
+		isMin := true
+
+		for _, v2 := range data {
+			if v > v2 {
+				isMin = false
+				break
+			}
+		}
+
+		if isMin {
+			return v
+		}
+	}
+
+	return 0.0
+}
+
+func max(data []float64) float64 {
+	for _, v := range data {
+		isMax := true
+
+		for _, v2 := range data {
+			if v < v2 {
+				isMax = false
+				break
+			}
+		}
+
+		if isMax {
+			return v
+		}
+	}
+
+	return 0.0
+}
+
 func csv2Float(r io.Reader, column int) ([]float64, error) {
 	// Create the CSV reader to take data from csv files.
 	cr := csv.NewReader(r)

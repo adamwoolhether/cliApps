@@ -89,3 +89,31 @@ func BenchmarkRun(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkRunMin(b *testing.B) {
+	filenames, err := filepath.Glob("./testdata/benchmark/*.csv")
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		if err = run(filenames, "min", 2, ioutil.Discard); err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+func BenchmarkRunMax(b *testing.B) {
+	filenames, err := filepath.Glob("./testdata/benchmark/*.csv")
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		if err = run(filenames, "max", 2, ioutil.Discard); err != nil {
+			b.Error(err)
+		}
+	}
+}
