@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 )
 
 func main() {
@@ -23,16 +22,20 @@ func run(proj string, out io.Writer) error {
 		return fmt.Errorf("project directory is required: %w", ErrValidation)
 	}
 
-	// Use go build to validate compilation.
-	// We add a lib in stdlib to build to prevent building a binary to clean up.
-	args := []string{"build", ".", "errors"}
-	cmd := exec.Command("go", args...)
-	cmd.Dir = proj
-	if err := cmd.Run(); err != nil {
-		return &stepErr{step: "go build", msg: "go build failed", cause: err}
+	pipeline := make([]step, 1)
+	pipeline[0] = newStep("go build", "go", "Go Build: SUCCESS", proj, []string{"build", ".", "errors"})
+
+	for _, s := range pipeline {
+		msg, err := s.execute()
+		if err != nil {
+			return err
+		}
+
+		_, err = fmt.Println(out, msg)
+		if err != nil {
+			return err
+		}
 	}
 
-	_, err := fmt.Println(out, "Go Build: SUCCESS")
-
-	return err
+	return nil
 }
