@@ -23,6 +23,7 @@ func newTimeoutStep(name, exe, message, proj string, args []string, timeout time
 }
 
 // command is set as a package level var to override it for testing.
+// We should implement as an interface or pass as func parameter.
 var command = exec.CommandContext
 
 func (s timeoutStep) execute() (string, error) {
