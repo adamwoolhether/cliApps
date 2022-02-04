@@ -22,11 +22,14 @@ func newTimeoutStep(name, exe, message, proj string, args []string, timeout time
 	}
 }
 
+// command is set as a package level var to override it for testing.
+var command = exec.CommandContext
+
 func (s timeoutStep) execute() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), s.timeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, s.exe, s.args...)
+	cmd := command(ctx, s.exe, s.args...)
 	cmd.Dir = s.proj
 
 	if err := cmd.Run(); err != nil {
