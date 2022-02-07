@@ -17,7 +17,7 @@ type executor interface {
 func main() {
 	proj := flag.String("p", "", "Project directory")
 	flag.Parse()
-
+	
 	if err := run(*proj, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -28,44 +28,57 @@ func run(proj string, out io.Writer) error {
 	if proj == "" {
 		return fmt.Errorf("project directory is required: %w", ErrValidation)
 	}
-
-	pipeline := make([]executor, 4)
-
+	
+	pipeline := make([]executor, 6)
+	
 	pipeline[0] = newStep(
 		"go build",
 		"go",
 		"Go Build: SUCCESS",
 		proj, []string{"build", ".", "errors"},
 	)
-
+	
 	pipeline[1] = newStep(
 		"go test",
 		"go",
 		"Go Test: SUCCESS",
 		proj, []string{"test", "-v"},
 	)
-
+	
 	pipeline[2] = newExceptionStep(
 		"go fmt",
 		"gofmt",
 		"Gofmt: SUCCESS",
 		proj, []string{"-l", "."},
 	)
-
-	pipeline[3] = newTimeoutStep(
+	
+	pipeline[3] = newExceptionStep(
+		"ci-lint",
+		"golangci-lint",
+		"CI-Lint: SUCCESS",
+		proj, []string{"run"},
+	)
+	
+	pipeline[4] = newExceptionStep(
+		"gocyclo",
+		"gocyclo",
+		"Gocyclo: SUCCESS",
+		proj, []string{"-over", "10", "."})
+	
+	pipeline[5] = newTimeoutStep(
 		"git push",
 		"git",
 		"Git Push: SUCCESS",
 		proj, []string{"push", "origin", "main"},
 		10*time.Second,
 	)
-
+	
 	sig := make(chan os.Signal, 1)
 	errCh := make(chan error)
 	done := make(chan struct{})
-
+	
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-
+	
 	go func() {
 		for _, s := range pipeline {
 			msg, err := s.execute()
@@ -73,7 +86,7 @@ func run(proj string, out io.Writer) error {
 				errCh <- err
 				return
 			}
-
+			
 			_, err = fmt.Fprintln(out, msg)
 			if err != nil {
 				errCh <- err
@@ -82,7 +95,7 @@ func run(proj string, out io.Writer) error {
 		}
 		close(done)
 	}()
-
+	
 	for {
 		select {
 		case rec := <-sig:
@@ -94,6 +107,6 @@ func run(proj string, out io.Writer) error {
 			return nil
 		}
 	}
-
+	
 	return nil
 }
