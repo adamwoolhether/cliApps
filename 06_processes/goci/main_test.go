@@ -79,7 +79,7 @@ func TestRun(t *testing.T) {
 			
 			var out bytes.Buffer
 			
-			err := run(tc.proj, "test", &out)
+			err := run(tc.proj, "main", &out)
 			if tc.expErr != nil {
 				if err == nil {
 					t.Errorf("expected error: %q, got 'nil'", tc.expErr)
@@ -125,7 +125,7 @@ func TestRunKill(t *testing.T) {
 			defer signal.Stop(expSigCh)
 			
 			go func() {
-				errCh <- run(tc.proj, "test", io.Discard)
+				errCh <- run(tc.proj, "main", io.Discard)
 			}()
 			
 			go func() {
@@ -187,7 +187,7 @@ func setupGit(t *testing.T, proj string) func() {
 		{[]string{"init"}, projPath, nil},
 		{[]string{"remote", "add", "origin", remoteURI}, projPath, nil},
 		{[]string{"add", "."}, projPath, nil},
-		{[]string{"commit", "-m", "test"}, projPath, []string{
+		{[]string{"commit", "-m", "main"}, projPath, []string{
 			"GIT_COMMITTER_NAME=test",
 			"GIT_COMMITTER_EMAIL=test@example.com",
 			"GIT_AUTHOR_NAME=test",
