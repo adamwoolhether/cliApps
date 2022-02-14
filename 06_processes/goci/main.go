@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io"
@@ -16,15 +17,24 @@ type executor interface {
 
 func main() {
 	proj := flag.String("p", "", "Project directory")
+	branch := flag.String("b", "", "Git branch")
 	flag.Parse()
 	
-	if err := run(*proj, os.Stdout); err != nil {
+	if *branch == "" {
+		s := bufio.NewScanner(os.Stdin)
+		fmt.Println("Input Git repo's target branch")
+		for s.Scan() {
+			*branch = s.Text()
+		}
+	}
+	
+	if err := run(*proj, *branch, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run(proj string, out io.Writer) error {
+func run(proj, branch string, out io.Writer) error {
 	if proj == "" {
 		return fmt.Errorf("project directory is required: %w", ErrValidation)
 	}
@@ -69,7 +79,7 @@ func run(proj string, out io.Writer) error {
 		"git push",
 		"git",
 		"Git Push: SUCCESS",
-		proj, []string{"push", "origin", "main"},
+		proj, []string{"push", "origin", branch},
 		10*time.Second,
 	)
 	
