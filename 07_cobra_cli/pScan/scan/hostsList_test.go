@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 	
-	"github.com/adamwoolhether/cliApps/07_cobra_cli/scan"
+	"github.com/adamwoolhether/cliApps/07_cobra_cli/pScan/scan"
 )
 
 func TestAdd(t *testing.T) {
