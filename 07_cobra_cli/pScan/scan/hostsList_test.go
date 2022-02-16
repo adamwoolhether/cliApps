@@ -140,7 +140,7 @@ func TestLoadNofile(t *testing.T) {
 	
 	hl := &scan.HostsList{}
 	
-	if err = hl.Load(tf.Name()); err == nil {
-		t.Errorf("Expected err, got nil\n")
+	if err := hl.Load(tf.Name()); err != nil {
+		t.Errorf("Expected no error, got %q instead\n", err)
 	}
 }

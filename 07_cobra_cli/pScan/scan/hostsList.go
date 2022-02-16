@@ -57,7 +57,7 @@ func (hl *HostsList) Remove(host string) error {
 func (hl *HostsList) Load(hostFile string) error {
 	f, err := os.Open(hostFile)
 	if err != nil {
-		if errors.Is(err, ErrExists) {
+		if errors.Is(err, os.ErrNotExist) {
 			return nil
 		}
 		return err
