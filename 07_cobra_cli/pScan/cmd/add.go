@@ -46,6 +46,7 @@ func init() {
 	hostsCmd.AddCommand(addCmd)
 }
 
+// addAction adds given hosts to the hosts file.
 func addAction(out io.Writer, hostsFile string, args []string) error {
 	hl := &scan.HostsList{}
 	

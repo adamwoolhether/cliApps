@@ -44,6 +44,7 @@ func init() {
 	hostsCmd.AddCommand(listCmd)
 }
 
+// listAction lists the hostsFiles' hosts.
 func listAction(out io.Writer, hostsFile string, args []string) error {
 	hl := &scan.HostsList{}
 	

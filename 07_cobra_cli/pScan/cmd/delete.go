@@ -46,6 +46,7 @@ func init() {
 	hostsCmd.AddCommand(deleteCmd)
 }
 
+// deleteAction deletes the given hosts from the hosts file.
 func deleteAction(out io.Writer, hostsFile string, args []string) error {
 	hl := &scan.HostsList{}
 	
