@@ -140,7 +140,7 @@ func TestIntegration(t *testing.T) {
 		t.Fatalf("Exp no error, got %q\n", err)
 	}
 	// Scan hosts
-	if err := scanAction(&out, tf, "", nil); err != nil {
+	if err := scanAction(&out, "", tf, "", nil); err != nil {
 		t.Fatalf("exp no error, got %q\n", err)
 	}
 	
@@ -198,7 +198,7 @@ func TestScanAction(t *testing.T) {
 	var out bytes.Buffer
 	
 	// Execute and capture output
-	if err := scanAction(&out, tf, "7-9", ports); err != nil {
+	if err := scanAction(&out, "", tf, "7-9", ports); err != nil {
 		t.Fatalf("Exp no err, got %q\n", err)
 	}
 	
@@ -208,11 +208,11 @@ func TestScanAction(t *testing.T) {
 	}
 	
 	// Test port out of range
-	if err := scanAction(&out, tf, "", []int{99999}); err != scan.ErrInvalidPort {
+	if err := scanAction(&out, "", tf, "", []int{99999}); err != scan.ErrInvalidPort {
 		t.Fatalf("Exp err %q, go %q\n", scan.ErrInvalidPort, err)
 	}
 	// Test invalid range
-	if err := scanAction(&out, tf, "99-1", ports); err != scan.ErrInvalidRange {
+	if err := scanAction(&out, "", tf, "99-1", ports); err != scan.ErrInvalidRange {
 		t.Fatalf("Exp err %q, go %q\n", scan.ErrInvalidRange, err)
 	}
 }

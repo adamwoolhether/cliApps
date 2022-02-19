@@ -45,7 +45,28 @@ var scanCmd = &cobra.Command{
 			return err
 		}
 		
-		return scanAction(os.Stdout, hostsFile, portRange, ports)
+		var filter string
+		open, err := cmd.Flags().GetBool("open")
+		if err != nil {
+			return err
+		}
+		
+		closed, err := cmd.Flags().GetBool("closed")
+		if err != nil {
+			return err
+		}
+		
+		if open && closed {
+			fmt.Errorf("cannot filter both open and closed ports")
+		}
+		if open {
+			filter = "open"
+		}
+		if closed {
+			filter = "closed"
+		}
+		
+		return scanAction(os.Stdout, filter, hostsFile, portRange, ports)
 	},
 }
 
@@ -53,10 +74,12 @@ func init() {
 	rootCmd.AddCommand(scanCmd)
 	scanCmd.Flags().IntSliceP("ports", "p", []int{22, 80, 443}, "ports to scan")
 	scanCmd.Flags().StringP("range", "r", "", "range of ports to scan")
+	scanCmd.Flags().BoolP("open", "o", false, "show only open ports")
+	scanCmd.Flags().BoolP("closed", "x", false, "show only closed ports")
 }
 
 // scanAction loads the hosts file, runs the port scan, and returns printed results.
-func scanAction(out io.Writer, hostsFile, portRange string, ports []int) error {
+func scanAction(out io.Writer, filter, hostsFile, portRange string, ports []int) error {
 	if portRange != "" {
 		portRangeMembers, err := rangePorts(portRange)
 		if err != nil {
@@ -78,7 +101,7 @@ func scanAction(out io.Writer, hostsFile, portRange string, ports []int) error {
 	
 	results := scan.Run(hl, ports)
 	
-	return printResults(out, results)
+	return printResults(out, filter, results)
 }
 
 func validatePort(ports []int) bool {
@@ -120,7 +143,7 @@ func rangePorts(portRange string) ([]int, error) {
 }
 
 // printResults ranges over results, formats them, and writes them to stdout.
-func printResults(out io.Writer, results []scan.Result) error {
+func printResults(out io.Writer, filter string, results []scan.Result) error {
 	message := ""
 	
 	for _, r := range results {
@@ -134,6 +157,9 @@ func printResults(out io.Writer, results []scan.Result) error {
 		message += fmt.Sprintln()
 		
 		for _, p := range r.PortStates {
+			if filter != "" && filter != p.Open.String() {
+				break
+			}
 			message += fmt.Sprintf("\t%d: %s\n", p.Port, p.Open)
 		}
 		message += fmt.Sprintln()
