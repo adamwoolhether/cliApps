@@ -16,6 +16,7 @@ limitations under the License.
 // cobra init --pkg-name GO_MODULE
 // cobra add hosts
 // cobra add list -p hostsCmd
+// cobra add completion
 //
 // PSCAN_HOSTS_FILE=newFile.hosts
 
