@@ -140,7 +140,7 @@ func TestIntegration(t *testing.T) {
 		t.Fatalf("Exp no error, got %q\n", err)
 	}
 	// Scan hosts
-	if err := scanAction(&out, tf, nil); err != nil {
+	if err := scanAction(&out, tf, "", nil); err != nil {
 		t.Fatalf("exp no error, got %q\n", err)
 	}
 	
@@ -187,6 +187,9 @@ func TestScanAction(t *testing.T) {
 	expectedOutput := fmt.Sprintln("localhost:")
 	expectedOutput += fmt.Sprintf("\t%d: open\n", ports[0])
 	expectedOutput += fmt.Sprintf("\t%d: closed\n", ports[1])
+	expectedOutput += fmt.Sprintf("\t%d: closed\n", 7)
+	expectedOutput += fmt.Sprintf("\t%d: closed\n", 8)
+	expectedOutput += fmt.Sprintf("\t%d: closed\n", 9)
 	expectedOutput += fmt.Sprintln()
 	expectedOutput += fmt.Sprintln("unknownhostoutthere: Host not found")
 	expectedOutput += fmt.Sprintln()
@@ -195,12 +198,21 @@ func TestScanAction(t *testing.T) {
 	var out bytes.Buffer
 	
 	// Execute and capture output
-	if err := scanAction(&out, tf, ports); err != nil {
-		t.Fatalf("Exp no err, go %q\n", err)
+	if err := scanAction(&out, tf, "7-9", ports); err != nil {
+		t.Fatalf("Exp no err, got %q\n", err)
 	}
 	
 	// Test scan output
 	if out.String() != expectedOutput {
 		t.Errorf("Exp output %q, got %q\n", expectedOutput, out.String())
+	}
+	
+	// Test port out of range
+	if err := scanAction(&out, tf, "", []int{99999}); err != scan.ErrInvalidPort {
+		t.Fatalf("Exp err %q, go %q\n", scan.ErrInvalidPort, err)
+	}
+	// Test invalid range
+	if err := scanAction(&out, tf, "99-1", ports); err != scan.ErrInvalidRange {
+		t.Fatalf("Exp err %q, go %q\n", scan.ErrInvalidRange, err)
 	}
 }

@@ -3,9 +3,15 @@
 package scan
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"time"
+)
+
+var (
+	ErrInvalidPort  = errors.New("ports must be within 1-65535")
+	ErrInvalidRange = errors.New("range invalid. ex: 1-65535")
 )
 
 // PortState represents the state of a single TCP port.

@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 	
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -37,21 +39,41 @@ var scanCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return scanAction(os.Stdout, hostsFile, ports)
+		
+		portRange, err := cmd.Flags().GetString("range")
+		if err != nil {
+			return err
+		}
+		
+		return scanAction(os.Stdout, hostsFile, portRange, ports)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(scanCmd)
 	scanCmd.Flags().IntSliceP("ports", "p", []int{22, 80, 443}, "ports to scan")
+	scanCmd.Flags().StringP("range", "r", "", "range of ports to scan")
 }
 
-// scanAction
-func scanAction(out io.Writer, hostsFile string, ports []int) error {
+// scanAction loads the hosts file, runs the port scan, and returns printed results.
+func scanAction(out io.Writer, hostsFile, portRange string, ports []int) error {
+	if portRange != "" {
+		portRangeMembers, err := rangePorts(portRange)
+		if err != nil {
+			return err
+		}
+		
+		ports = append(ports, portRangeMembers...)
+	}
+	
 	hl := &scan.HostsList{}
 	
 	if err := hl.Load(hostsFile); err != nil {
 		return err
+	}
+	
+	if !validatePort(ports) {
+		return scan.ErrInvalidPort
 	}
 	
 	results := scan.Run(hl, ports)
@@ -59,6 +81,45 @@ func scanAction(out io.Writer, hostsFile string, ports []int) error {
 	return printResults(out, results)
 }
 
+func validatePort(ports []int) bool {
+	for _, port := range ports {
+		if port < 1 || port > 65535 {
+			return false
+		}
+	}
+	
+	return true
+}
+
+func rangePorts(portRange string) ([]int, error) {
+	span := strings.Split(portRange, "-")
+	if len(span) < 2 {
+		return nil, scan.ErrInvalidRange
+	}
+	
+	low, err := strconv.Atoi(span[0])
+	if err != nil {
+		return nil, err
+	}
+	high, err := strconv.Atoi(span[1])
+	if err != nil {
+		return nil, err
+	}
+	
+	if low < 1 || high > 65535 || low > high {
+		return nil, scan.ErrInvalidRange
+	}
+	
+	ports := make([]int, 0, high-low+1)
+	
+	for i := low; i < high+1; i++ {
+		ports = append(ports, i)
+	}
+	
+	return ports, nil
+}
+
+// printResults ranges over results, formats them, and writes them to stdout.
 func printResults(out io.Writer, results []scan.Result) error {
 	message := ""
 	
