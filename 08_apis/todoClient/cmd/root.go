@@ -13,6 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+/*
+curl -L -X POST -d '{"task": "Task 1"}' -H 'Content-Type: application/json' http://localhost:8080/todo
+curl -L -X POST -d '{"task": "Task 2"}' -H 'Content-Type: application/json' http://localhost:8080/todo
+*/
 package cmd
 
 import (
