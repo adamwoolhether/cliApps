@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -13,6 +14,11 @@ import (
 	
 	"github.com/adamwoolhether/cliApps/02_interacting/todo"
 )
+
+func TestMain(m *testing.M) {
+	log.SetOutput(io.Discard)
+	os.Exit(m.Run())
+}
 
 func setupAPI(t *testing.T) (string, func()) {
 	t.Helper()
