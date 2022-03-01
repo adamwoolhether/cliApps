@@ -17,6 +17,8 @@ limitations under the License.
 /*
 curl -L -X POST -d '{"task": "Task 1"}' -H 'Content-Type: application/json' http://localhost:8080/todo
 curl -L -X POST -d '{"task": "Task 2"}' -H 'Content-Type: application/json' http://localhost:8080/todo
+
+./todoServer -f /tmp/testtodoclient01.json
 */
 package cmd
 

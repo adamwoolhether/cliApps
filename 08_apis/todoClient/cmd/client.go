@@ -13,7 +13,7 @@ var (
 	ErrConnection      = errors.New("connection error")
 	ErrNotFound        = errors.New("not found")
 	ErrInvalidResponse = errors.New("invalid server response ")
-	ErrInvlid          = errors.New("invalid data ")
+	ErrInvalid         = errors.New("invalid data ")
 	ErrNotNumber       = errors.New("not a number")
 )
 
@@ -37,6 +37,8 @@ func newClient() *http.Client {
 	
 	return c
 }
+
+const timeFormat = "Jan/02 @15:04"
 
 func getItems(url string) ([]item, error) {
 	r, err := newClient().Get(url)
@@ -74,4 +76,19 @@ func getAll(apiRoot string) ([]item, error) {
 	u := fmt.Sprintf("%s/todo", apiRoot)
 	
 	return getItems(u)
+}
+
+func getOne(apiRoot string, id int) (item, error) {
+	u := fmt.Sprintf("%s/todo/%d", apiRoot, id)
+	
+	items, err := getItems(u)
+	if err != nil {
+		return item{}, err
+	}
+	
+	if len(items) != 1 {
+		return item{}, fmt.Errorf("%w: invalid resutls", ErrInvalid)
+	}
+	
+	return items[0], nil
 }
