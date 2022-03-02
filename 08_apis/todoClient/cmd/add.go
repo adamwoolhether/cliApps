@@ -32,7 +32,7 @@ var addCmd = &cobra.Command{
 	SilenceUsage: true,
 	Args:         cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		apiRoot := viper.GetString("apit-root")
+		apiRoot := viper.GetString("api-root")
 		
 		return addAction(os.Stdout, apiRoot, args)
 	},
