@@ -40,7 +40,7 @@ func TestListAction(t *testing.T) {
 			}
 			
 			var out bytes.Buffer
-			err := listAction(&out, url)
+			err := listAction(&out, url, false)
 			
 			if tc.expError != nil {
 				if err == nil {
