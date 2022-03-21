@@ -42,7 +42,7 @@ func (w *widgets) update(timer []int, txtType, txtInfo, txtTimer string, redrawC
 	redrawCh <- true
 }
 
-// newWidget uses helper fucntions to initialize and return a new widget.
+// newWidget uses helper functions to initialize and return a new widget.
 func newWidget(ctx context.Context, errorCh chan<- error) (*widgets, error) {
 	w := &widgets{
 		updateDontTimer: make(chan []int),
