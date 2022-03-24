@@ -169,6 +169,7 @@ func (r *dbRepo) CategorySummary(day time.Time, filter string) (time.Duration, e
 	stmt := `SELECT sum(actual_duration) FROM interval
 	WHERE category LIKE ? AND strftime('%Y-%m-%d', start_time, 'localtime')=strftime('%Y-%m-%d', ?, 'localtime')`
 	
+	// handle potential null values, as this isn't done automatically.
 	var ds sql.NullInt64
 	err := r.db.QueryRow(stmt, filter, day).Scan(&ds)
 	

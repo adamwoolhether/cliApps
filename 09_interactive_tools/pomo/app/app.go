@@ -37,11 +37,17 @@ func New(config *pomodoro.IntervalConfig) (*App, error) {
 	errorCh := make(chan error)
 	
 	// Instantiate widgets and buttons.
-	w, err := newWidget(ctx, errorCh)
+	w, err := newWidgets(ctx, errorCh)
 	if err != nil {
 		return nil, err
 	}
-	b, err := newButtonSet(ctx, config, w, redrawCh, errorCh)
+	
+	s, err := newSummary(ctx, config, redrawCh, errorCh)
+	if err != nil {
+		return nil, err
+	}
+	
+	b, err := newButtonSet(ctx, config, w, s, redrawCh, errorCh)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +59,7 @@ func New(config *pomodoro.IntervalConfig) (*App, error) {
 	}
 	
 	// Instantiate a new termdash.Container.
-	c, err := newGrid(b, w, term)
+	c, err := newGrid(b, w, s, term)
 	if err != nil {
 		return nil, err
 	}

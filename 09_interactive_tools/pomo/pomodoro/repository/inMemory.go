@@ -4,7 +4,9 @@ package repository
 
 import (
 	"fmt"
+	"strings"
 	"sync"
+	"time"
 	
 	"github.com/adamwoolhether/cliApps/09_interactive_tools/pomo/pomodoro"
 )
@@ -101,4 +103,26 @@ func (r *inMemoryRepo) Breaks(n int) ([]pomodoro.Interval, error) {
 	}
 	
 	return data, nil
+}
+
+// CategorySummary returns a summary to users for the given day with matching filter.
+func (r *inMemoryRepo) CategorySummary(day time.Time, filter string) (time.Duration, error) {
+	// Return daily summary
+	r.RLock()
+	defer r.RUnlock()
+	
+	var d time.Duration
+	
+	filter = strings.Trim(filter, "%")
+	
+	for _, i := range r.intervals {
+		if i.StartTime.Year() == day.Year() &&
+			i.StartTime.YearDay() == day.YearDay() {
+			if strings.Contains(i.Category, filter) {
+				d += i.ActualDuration
+			}
+		}
+	}
+	
+	return d, nil
 }

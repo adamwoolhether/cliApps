@@ -3,3 +3,4 @@
 /05_performance/colStats/testdata/benchmark/
 *.DS_Store
 /09_interactive_tools/pomo/pomo.db
+/09_interactive_tools/pomo/pomo

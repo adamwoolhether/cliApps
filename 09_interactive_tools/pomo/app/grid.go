@@ -9,7 +9,7 @@ import (
 )
 
 // newGrid defines a new grid layout with the given buttonSet, widgets, and Terminal.
-func newGrid(b *buttonSet, w *widgets, t terminalapi.Terminal) (*container.Container, error) {
+func newGrid(b *buttonSet, w *widgets, s *summary, t terminalapi.Terminal) (*container.Container, error) {
 	builder := grid.Builder{}
 	
 	// Add first row using percentages to allow dynamic resizing.
@@ -60,7 +60,20 @@ func newGrid(b *buttonSet, w *widgets, t terminalapi.Terminal) (*container.Conta
 	
 	// Add third row.
 	builder.Add(
-		grid.RowHeightPerc(60),
+		grid.RowHeightPerc(60,
+			grid.ColWidthPerc(30,
+				grid.Widget(s.bcDay,
+					container.Border(linestyle.Light),
+					container.BorderTitle("Daily Summary (minutes)"),
+				),
+			),
+			grid.ColWidthPerc(70,
+				grid.Widget(s.lcWeekly,
+					container.Border(linestyle.Light),
+					container.BorderTitle("Weekly Summary"),
+				),
+			),
+		),
 	)
 	
 	// Build the layout.
