@@ -20,3 +20,27 @@ import "github.com/adamwoolhether/cliApps/09_interactive_tools/pomo/cmd"
 func main() {
 	cmd.Execute()
 }
+
+/*
+CREATE TABLE "interval" (
+   ...> "id" INTEGER,
+   ...> "start_time" DATETIME NOT NULL,
+   ...> "planned_duration" INTEGER DEFAULT 0,
+   ...> "actual_duration" INTEGER DEFAULT 0,
+   ...> "category" TEXT NOT NULL,
+   ...> "state" INTEGER DEFAULT 1,
+   ...> PRIMARY KEY("id")
+   ...> );
+
+sqlite> INSERT INTO interval VALUES(NULL, date('now'),25,25,"Pomodoro",3);
+sqlite> INSERT INTO interval VALUES(NULL, date('now'),25,25,"ShortBreak",3);
+sqlite> INSERT INTO interval VALUES(NULL, date('now'),5,5,"ShortBreak",3);
+sqlite> INSERT INTO interval VALUES(NULL, date('now'),15,15,"LongBreak",3);
+
+sqlite> SELECT * FROM interval;
+
+sqlite> SELECT * FROM interval WHERE category='Pomodoro';
+
+sqlite> DELETE FROM interval;
+sqlite> SELECT COUNT(*) FROM interval;
+*/

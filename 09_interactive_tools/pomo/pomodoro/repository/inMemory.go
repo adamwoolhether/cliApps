@@ -1,3 +1,5 @@
+//go:build inmemory
+
 package repository
 
 import (
