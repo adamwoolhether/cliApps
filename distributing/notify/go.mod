@@ -1,4 +1,4 @@
-module github.com/cliApps/distributing/notify
+module github.com/adamwoolhether/cliApps/distributing/notify
 
 go 1.18
 

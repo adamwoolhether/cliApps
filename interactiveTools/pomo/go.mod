@@ -7,7 +7,10 @@ require (
 	github.com/mum4k/termdash v0.16.1
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.10.1
+	"github.com/adamwoolhether/cliApps/distributing/notify" v0.0.0
 )
+
+replace github.com/adamwoolhether/cliApps/distributing/notify => ../../distributing/notify
 
 require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect

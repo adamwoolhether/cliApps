@@ -1,12 +1,14 @@
+//go:build !inmemory && !containers
+
 package repository
 
 import (
 	"database/sql"
 	"sync"
 	"time"
-	
+
 	_ "github.com/mattn/go-sqlite3"
-	
+
 	"github.com/adamwoolhether/cliApps/interactiveTools/pomo/pomodoro"
 )
 
@@ -36,15 +38,15 @@ func NewSQLite3Repo(dbfile string) (*dbRepo, error) {
 	}
 	db.SetConnMaxLifetime(30 * time.Minute)
 	db.SetMaxOpenConns(1)
-	
+
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
-	
+
 	if _, err := db.Exec(createTableInterval); err != nil {
 		return nil, err
 	}
-	
+
 	return &dbRepo{
 		db: db,
 	}, nil
@@ -54,68 +56,68 @@ func (r *dbRepo) Create(i pomodoro.Interval) (int64, error) {
 	// Create an entry in the repo
 	r.Lock()
 	defer r.Unlock()
-	
+
 	// Prepare INSERT statement
 	stmt, err := r.db.Prepare("INSERT INTO interval VALUES(NULL, ?,?,?,?,?)")
 	if err != nil {
 		return 0, err
 	}
 	defer stmt.Close()
-	
+
 	// Exec INSERT statement
 	res, err := stmt.Exec(i.StartTime, i.PlannedDuration, i.ActualDuration, i.Category, i.State)
 	if err != nil {
 		return 0, err
 	}
-	
+
 	// INSERT results
 	var id int64
 	if id, err = res.LastInsertId(); err != nil {
 		return 0, err
 	}
-	
+
 	return id, nil
 }
 
 func (r *dbRepo) Update(i pomodoro.Interval) error {
 	r.RLock()
 	defer r.RUnlock()
-	
+
 	stmt, err := r.db.Prepare("UPDATE interval SET start_time=?, actual_duration=?, state=? WHERE id=?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	
+
 	res, err := stmt.Exec(i.StartTime, i.ActualDuration, i.State, i.ID)
 	if err != nil {
 		return err
 	}
-	
+
 	// UDATE results and check for errors.
 	_, err = res.RowsAffected()
-	
+
 	return err
 }
 
 func (r *dbRepo) ByID(id int64) (pomodoro.Interval, error) {
 	r.Lock()
 	defer r.Unlock()
-	
+
 	// Query DB row based on ID
 	row := r.db.QueryRow("SELECT * FROM interval WHERE id=?", id)
-	
+
 	// Parse row into Interval
 	i := pomodoro.Interval{}
 	err := row.Scan(&i.ID, &i.StartTime, &i.PlannedDuration, &i.ActualDuration, &i.Category, &i.State)
-	
+
 	return i, err
 }
 
 func (r *dbRepo) Last() (pomodoro.Interval, error) {
 	r.RLock()
 	defer r.RUnlock()
-	
+
 	last := pomodoro.Interval{}
 	err := r.db.QueryRow("SELECT * FROM interval ORDER BY id desc LIMIT 1").Scan(
 		&last.ID, &last.StartTime, &last.PlannedDuration, &last.ActualDuration, &last.Category, &last.State)
@@ -125,7 +127,7 @@ func (r *dbRepo) Last() (pomodoro.Interval, error) {
 		}
 		return last, err
 	}
-	
+
 	return last, nil
 }
 
@@ -133,15 +135,15 @@ func (r *dbRepo) Breaks(n int) ([]pomodoro.Interval, error) {
 	// Search last n items of type break in the repository
 	r.RLock()
 	defer r.RUnlock()
-	
+
 	stmt := `SELECT * FROM interval WHERE category LIKE '%Break' ORDER BY id DESC LIMIT ?`
-	
+
 	rows, err := r.db.Query(stmt, n)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	// Parse into slice of Interval
 	data := []pomodoro.Interval{}
 	for rows.Next() {
@@ -150,14 +152,14 @@ func (r *dbRepo) Breaks(n int) ([]pomodoro.Interval, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		data = append(data, i)
 	}
 	err = rows.Err()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return data, nil
 }
 
@@ -165,18 +167,18 @@ func (r *dbRepo) CategorySummary(day time.Time, filter string) (time.Duration, e
 	// Return daily summary
 	r.RLock()
 	defer r.RUnlock()
-	
+
 	stmt := `SELECT sum(actual_duration) FROM interval
 	WHERE category LIKE ? AND strftime('%Y-%m-%d', start_time, 'localtime')=strftime('%Y-%m-%d', ?, 'localtime')`
-	
+
 	// handle potential null values, as this isn't done automatically.
 	var ds sql.NullInt64
 	err := r.db.QueryRow(stmt, filter, day).Scan(&ds)
-	
+
 	var d time.Duration
 	if ds.Valid {
 		d = time.Duration(ds.Int64)
 	}
-	
+
 	return d, err
 }
